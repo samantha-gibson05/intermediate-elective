@@ -1,0 +1,46 @@
+---
+title: "Intermediate Elective"
+date: "05/02/2026"
+author: "Sami Gibson"
+format: pdf
+editor: source
+execute: 
+  message: false
+  warning: false
+---
+# Set up
+
+## Packages
+```{r}
+#| label: packages
+
+# reads in tidyverse package from library 
+library(tidyverse)
+# reads in janitor package from library 
+library(janitor)
+# reads in here package from library 
+library(here)
+# reads in naniar package from library 
+library(naniar)
+# reads in patchwork package from library 
+library(patchwork)
+# reads in viridis package from library 
+library(viridis)
+# reads in scales package from library 
+library(scales)
+```
+## Data
+```{r}
+#| label: data
+# read in weather data from NOAA weather station
+weather <- read_csv(here("data", "NOAA-weather-data.csv"))
+# read in water quality survey metadata
+metadata <- read_csv(here("data", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
+# read in water quality parameter measurements
+water_parameters <- read_csv(here("data", "YSI_Data_Begin_1.csv"))
+# reads in eBird data as birds
+birds <- read_csv(here("data", "birds.csv"))
+# read in Venco water data
+venoco_water <- read_csv(here("data","venoco-water.csv"))
+```
+
