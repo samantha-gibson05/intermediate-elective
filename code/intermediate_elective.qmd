@@ -83,8 +83,39 @@ Make sure all your code is annotated, and that the output is showing.
 At the end of this section, include code to save your final figure as a .jpg or .png file.
 :::
 ```{r}
+#| label: data cleaning/wrangling
+
 # creates new object birds_clean from birds that has standardized column names
 birds_clean <- birds |> clean_names()
+
+# creates new object birds_wrangled from birds_clean
+birds_wrangled <- birds_clean |>
+  # converts observation_date into Date format
+  mutate(observation_date = as.Date(observation_date)) |>
+  # filter to include:
+    # observations between Oct 1, 2021 and Sept 30, 2025 (4 water years)
+  filter(observation_date > "2021-09-30" & observation_date < "2025-10-01",
+         # observations that are not repeats
+         repeat_observation == "No",
+         # eBird groups in the 4 groups of interest:
+         # Mallard, Black-crowned Night-Heron, Killdeer, Song Sparrow
+         species %in% c("Mallard",
+                        "Black-crowned Night-Heron",
+                        "Killdeer",
+                        "Song Sparrow")) |>
+  # creates a new column `water_year` which assigns each observation to:
+  # wy2022, wy2023, wy2024, or wy2025 based on year of the observation date
+  mutate(water_year = case_when(
+    observation_date > "2021-09-30" & observation_date < "2022-10-01" ~ 2022,
+    observation_date > "2022-09-30" & observation_date < "2023-10-01" ~ 2023,
+    observation_date > "2023-09-30" & observation_date < "2024-10-01" ~ 2024,
+    observation_date > "2024-09-30" & observation_date < "2025-10-01" ~ 2025)) |>
+  # groups observations by species & water year 
+  group_by(species, water_year) |>
+  # sums total observations for each species in each water year
+  summarize(total_observations = sum(count)) |>
+  # ungroup df 
+  ungroup()
 ```
 
 # 4. Describe your process
