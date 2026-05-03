@@ -20,15 +20,11 @@ library(tidyverse)
 library(janitor)
 # reads in here package from library 
 library(here)
-# reads in naniar package from library 
-library(naniar)
-# reads in patchwork package from library 
-library(patchwork)
-# reads in viridis package from library 
-library(viridis)
 # reads in scales package from library 
 library(scales)
+# reads in NatParksPalettes package from library 
 library(NatParksPalettes)
+# reads in ggrepel package from library 
 library(ggrepel)
 ```
 ## Data
@@ -204,3 +200,9 @@ your process of using someone else’s code to create a visualization
 challenges you encountered as you made your visualization
 how your visualization differs from visualizations you made in class, for assignments, or for a previous elective
 :::
+**Your process of using someone else’s code to create a visualization**:
+I started by examining the inspiration code and identifying its key components, such as the time-series layout, use of lines and points, and direct labeling instead of a legend. If I was confused about elements I first searched them in R Studio and if not searched google for further clarification of their implementation and usage. I then adapted the key elements to my chosen dataset (the birds data set) by modifying the variables, simplifying some components, and rewriting parts of the code to match my data structure/the style and formatting I am comfortable with that we have used in this class.
+
+**Challenges you encountered as you made your visualization**: One major challenge was that my labels overlapped due to the end year values beng similar for waterfowl and sparrows. Since the inspiration code did not deal with this particular issue I had to research elsewhere to figure out how I could maintain the readability of me labels. I ended up using the `ggrepel` package which allowed me to shift the labels.
+
+**How your visualization differs from visualizations you made in class, for assignments, or for a previous elective**: This visualization differs from those I created in class because it focuses more on storytelling and presentation rather than just exploring relationships between variables. It includes a wider range of time which can show more broad patterns. The direct labeling is the main inspiration I took from Steven Ponce's figure that largely differs from previous plots we made in class which I was drawn to because I wanted to learn how to incorporate this for future visualization I create.
