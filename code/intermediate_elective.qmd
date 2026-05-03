@@ -28,6 +28,8 @@ library(patchwork)
 library(viridis)
 # reads in scales package from library 
 library(scales)
+library(NatParksPalettes)
+library(ggrepel)
 ```
 ## Data
 ```{r}
@@ -56,7 +58,7 @@ which variables from your dataset will be shown in your visualization, and what 
 
 **Why it makes sense for your dataset of choice**: This inspiration makes sense for my dataset because the observations in the Ebird data are naturally time-based so a time-series figure can show whether selected species increased, decreased, or stayed stable over time. Instead of showing energy sources over time (like Steven Ponce's origional does), my figure will show selected bird species observed at NCOS over time.
 
-**Which variables from your dataset will be shown in your visualization, and what visual components they map onto (axes, shapes, colors, etc.)**: The variables in shown in my figure will be `water_year` (found from origional `date` column), `species`, and `count` (summed to `total_observations`). Water year will be on the x-axis, total observations will be on the y-axis, species will determine line and point color color, and there will be labels to identify each species at the end of its line.
+**Which variables from your dataset will be shown in your visualization, and what visual components they map onto (axes, shapes, colors, etc.)**: The variables in shown in my figure will be `water_year` (found from origional `date` column), `e_bird_group`, and `count` (summed to `total_observations`). Water year will be on the x-axis, total observations will be on the y-axis, species will determine line and point color color, and there will be labels to identify each species group at the end of its line.
 
 
 # 2. Plan your figure
@@ -82,6 +84,7 @@ Make sure all your code is annotated, and that the output is showing.
 
 At the end of this section, include code to save your final figure as a .jpg or .png file.
 :::
+## Data cleaning/wrangling
 ```{r}
 #| label: data cleaning/wrangling
 
@@ -93,29 +96,95 @@ birds_wrangled <- birds_clean |>
   # converts observation_date into Date format
   mutate(observation_date = as.Date(observation_date)) |>
   # filter to include:
-    # observations between Oct 1, 2021 and Sept 30, 2025 (4 water years)
-  filter(observation_date > "2021-09-30" & observation_date < "2025-10-01",
-         # observations that are not repeats
+  filter(# observations that are not repeats
          repeat_observation == "No",
-         # eBird groups in the 4 groups of interest:
-         # Mallard, Black-crowned Night-Heron, Killdeer, Song Sparrow
-         species %in% c("Mallard",
-                        "Black-crowned Night-Heron",
-                        "Killdeer",
-                        "Song Sparrow")) |>
-  # creates a new column `water_year` which assigns each observation to:
-  # wy2022, wy2023, wy2024, or wy2025 based on year of the observation date
+         # eBird groups in the 4 groups of interest
+         e_bird_group %in% c("Waterfowl",
+                             "New World Sparrows",
+                             "Herons, Ibis, and Allies", 
+                             "Shorebirds")) |>
+  # creates a new column `water_year` assigning each observation to a water year
   mutate(water_year = case_when(
+    observation_date > "2017-09-30" & observation_date < "2018-10-01" ~ 2018,
+    observation_date > "2018-09-30" & observation_date < "2019-10-01" ~ 2019,
+    observation_date > "2019-09-30" & observation_date < "2020-10-01" ~ 2020,
+    observation_date > "2020-09-30" & observation_date < "2021-10-01" ~ 2021,
     observation_date > "2021-09-30" & observation_date < "2022-10-01" ~ 2022,
     observation_date > "2022-09-30" & observation_date < "2023-10-01" ~ 2023,
     observation_date > "2023-09-30" & observation_date < "2024-10-01" ~ 2024,
     observation_date > "2024-09-30" & observation_date < "2025-10-01" ~ 2025)) |>
-  # groups observations by species & water year 
-  group_by(species, water_year) |>
-  # sums total observations for each species in each water year
+  # groups observations by e_bird_group & water year 
+  group_by(e_bird_group, water_year) |>
+  # sums total observations for each e_bird_group in each water year
   summarize(total_observations = sum(count)) |>
   # ungroup df 
   ungroup()
+```
+## Code the figure
+```{r}
+#| label: figure prep
+# creates object labels from birds_wrangled for labeling each e_bird_group line
+labels <- birds_wrangled |>
+  # groups by e_bird_group
+  group_by(e_bird_group) |>
+  # sets the column water_year to be the max water year recorded
+  filter(water_year == max(water_year)) |>
+  # ungroup df 
+  ungroup()
+```
+
+```{r}
+#| label: code the figure
+#| fig-width: 8
+#| fig-height: 5
+# base layer: ggplot
+bird_plot <- ggplot( # assigns plot to object bird_plot 
+  birds_wrangled, # uses birds_wrangled data frame
+  aes(x = water_year, # x-axis is water_year
+      y = total_observations, # y-axis is total_observations
+      color = e_bird_group, # color determined by e_bird_group 
+      group = e_bird_group)) + # groups by e_bird_group
+  # first layer: horizontal grid reference lines at 50 observation increments
+  geom_hline(yintercept = seq(0, max(birds_wrangled$total_observations), by = 50),
+             color = "gray80", # colors lines grey
+             linewidth = 0.3) + # line width is 0.3
+  # second layer: lines for each e_bird_group
+  geom_line(linewidth = 1.3) + # line width is 1.3
+  # third layer: points for each water year
+  geom_point(size = 2.5) + # size is 2.5
+  # fourth layer: labels for the last value of each line 
+  geom_text_repel(data = labels, # uses labels df
+                  aes(label = e_bird_group), # label is e_bird_group
+                  nudge_x = 0.25, # pushes labels slightly right
+                  direction = "y", # only adjusts vertically
+                  hjust = 0, # no horizontal adjustment
+                  segment.color = NA, # removes connecting lines
+                  size = 3) + # size is 3
+
+  # lenghtens x-axis for label readability
+  scale_x_continuous(breaks = 2018:2025, limits = c(2018, 2025.9)) +
+  # formats y-axis
+  scale_y_continuous() +
+  # uses non-default colors
+  scale_fill_manual(values = natparks.pals("Torres")) +
+  # removes legend 
+  guides(color = "none") +
+  # creates title
+  labs(title = "Bird observations by group show different trends over time",
+       # creates subtitle
+       subtitle = "Total observations for selected bird groups at NCOS",
+       x = "Water Year", # labels x-axis
+       y = "Total Observations", # labels x-axis
+       caption = "Data source: birds.csv" ) + # creates caption identifying source
+  # applies non-default theme
+  theme_minimal() +
+  # customizes theme for readability
+  theme(plot.title = element_text(face = "bold", size = 14), # formats title
+        plot.subtitle = element_text(size = 11), # formats subtitle
+        axis.title = element_text(face = "bold"), # formats axis labels
+        panel.grid.minor = element_blank()) # formats gird lines
+# shows plot
+bird_plot
 ```
 
 # 4. Describe your process
