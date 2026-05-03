@@ -30,16 +30,8 @@ library(ggrepel)
 ## Data
 ```{r}
 #| label: data
-# read in weather data from NOAA weather station
-weather <- read_csv(here("data", "NOAA-weather-data.csv"))
-# read in water quality survey metadata
-metadata <- read_csv(here("data", "NCOS_YSI_Water_Quality_Monitoring_0.csv"))
-# read in water quality parameter measurements
-water_parameters <- read_csv(here("data", "YSI_Data_Begin_1.csv"))
 # reads in eBird data as birds
 birds <- read_csv(here("data", "birds.csv"))
-# read in Venco water data
-venoco_water <- read_csv(here("data","venoco-water.csv"))
 ```
 
 # 1. Explain your inspiration
