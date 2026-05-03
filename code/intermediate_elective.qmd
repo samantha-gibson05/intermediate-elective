@@ -52,6 +52,12 @@ which visualization you chose for your inspiration
 why it makes sense for your dataset of choice
 which variables from your dataset will be shown in your visualization, and what visual components they map onto (axes, shapes, colors, etc.)
 :::
+**Which visualization you chose for your inspiration**: For my inspiration, I chose Steven Ponce's ["Coal falls. Renewables rise."](https://stevenponce.netlify.app/data_visualizations/30DayChartChallenge/2026/30dcc_2026_24.html) visualization because it uses a clean time-series design to show change over time which was visually appealing to me. I am applying that same idea to bird survey data by showing how observed bird counts change across water years. 
+**Why it makes sense for your dataset of choice**: This inspiration makes sense for my dataset because the observations in the Ebird data are naturally time-based so a time-series figure can show whether selected species increased, decreased, or stayed stable over time. Instead of showing energy sources over time (like Steven Ponce's origional does), my figure will show selected bird species observed at NCOS over time.
+
+**Which variables from your dataset will be shown in your visualization, and what visual components they map onto (axes, shapes, colors, etc.)**: The variables in shown in my figure will be `water_year` (found from origional `date` column), `species`, and `count` (summed to `total_observations`). Water year will be on the x-axis, total observations will be on the y-axis, and species will determine line and point color color, and there will be labels to identify each species at the end of its line.
+
+
 # 2. Plan your figure
 :::{.callout-note}
 Sketch what your figure would look like following your inspiration.
