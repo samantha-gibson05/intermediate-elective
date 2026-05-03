@@ -186,6 +186,15 @@ bird_plot <- ggplot( # assigns plot to object bird_plot
 # shows plot
 bird_plot
 ```
+## Save figure
+```{r}
+#| label: saving figure
+ggsave(filename = here("code", "bird_figure.png"), # set file name + location
+       plot = bird_plot, # plot to be saved is bird_plot
+       width = 8, # width of figure is 8
+       height = 5, # height of figure is 5
+       dpi = 300) # dpi is 300
+```
 
 # 4. Describe your process
 :::{.callout-note}
